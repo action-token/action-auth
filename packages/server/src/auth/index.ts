@@ -1,10 +1,22 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db"; // your drizzle instance
+import { stellar } from "./plugins/stellar";
 // import { expo } from "@better-auth/expo";
 
 export const auth = betterAuth({
-  // plugins: [expo()],
+  // Register Stellar plugin (minimal SEP-10)
+  plugins: [
+    // expo(),
+    stellar({
+      network: (process.env.STELLAR_NETWORK as any) || "TESTNET",
+      serverSecret: process.env.STELLAR_SERVER_SECRET as string,
+      webAuthDomain: process.env.WEB_AUTH_DOMAIN as string,
+      homeDomain: process.env.HOME_DOMAIN as string,
+      emailDomainName: process.env.EMAIL_DOMAIN_NAME || "stellar.local",
+      challengeTTL: 300,
+    }),
+  ],
   database: drizzleAdapter(db, {
     provider: "sqlite", // or "mysql", "sqlite"
   }),

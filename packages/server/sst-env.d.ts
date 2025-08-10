@@ -14,6 +14,10 @@ declare module "sst" {
       "type": "sst.aws.Function"
       "url": string
     }
+    "STELLAR_SERVER_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "TURSO_AUTH_TOKEN": {
       "type": "sst.sst.Secret"
       "value": string

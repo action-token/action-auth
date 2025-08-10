@@ -4,3 +4,4 @@ export {
   AUTH_BASE_URL,
   type AuthClient,
 } from "./lib/auth-client";
+export { signInWithAlbedo } from "./lib/stellar";

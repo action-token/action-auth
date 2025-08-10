@@ -20,6 +20,7 @@ export default $config({
     const dbUrl = new sst.Secret("TURSO_DATABASE_URL");
     const authToken = new sst.Secret("TURSO_AUTH_TOKEN");
     const googleClientSecret = new sst.Secret("GOOGLE_CLIENT_SECRET");
+    const stellarServerSecret = new sst.Secret("STELLAR_SERVER_SECRET");
 
     new sst.aws.Function("Hono", {
       url: {
@@ -31,7 +32,7 @@ export default $config({
           maxAge: "1 day",
         },
       },
-      link: [dbUrl, authToken],
+      link: [dbUrl, authToken, googleClientSecret, stellarServerSecret],
       handler: "src/index.handler",
       environment: {
         BETTER_AUTH_SECRET,
@@ -40,6 +41,12 @@ export default $config({
         TURSO_AUTH_TOKEN: authToken.value,
         GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: googleClientSecret.value,
+        STELLAR_NETWORK: process.env.STELLAR_NETWORK || "TESTNET",
+        STELLAR_SERVER_SECRET: stellarServerSecret.value,
+        WEB_AUTH_DOMAIN:
+          process.env.WEB_AUTH_DOMAIN || new URL(BETTER_AUTH_URL).host,
+        HOME_DOMAIN: process.env.HOME_DOMAIN || "localhost",
+        EMAIL_DOMAIN_NAME: process.env.EMAIL_DOMAIN_NAME || "stellar.local",
       },
     });
   },

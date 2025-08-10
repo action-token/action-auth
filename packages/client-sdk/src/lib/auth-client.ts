@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/react";
+import { stellarClient } from "../plugins/stellar-client";
 
 // Configure Better Auth client. Set VITE_AUTH_BASE_URL in your .env to point to your auth server.
 // Fallback to "/api/auth" which is the common default proxy path.
@@ -11,7 +12,10 @@ export const AUTH_BASE_URL = baseURL;
 export type AuthClient = ReturnType<typeof createAuthClient>;
 
 export function createClient(options?: { baseURL?: string }) {
-  return createAuthClient({ baseURL: options?.baseURL ?? AUTH_BASE_URL });
+  return createAuthClient({
+    baseURL: options?.baseURL ?? AUTH_BASE_URL,
+    plugins: [stellarClient()],
+  });
 }
 
 export const authClient = createClient({ baseURL });

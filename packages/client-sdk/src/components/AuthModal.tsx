@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { createAuthClient } from "better-auth/react";
 import { authClient as defaultAuthClient } from "../lib/auth-client";
+import { signInWithAlbedo } from "../lib/stellar";
 import { Button } from "./ui/button";
 
 type View = "login" | "signup" | "forgot" | "reset" | "success";
@@ -59,6 +60,40 @@ export function AuthModal({
       });
     } catch (e: any) {
       setError(e?.message ?? "Failed to sign in with Google");
+    }
+  }
+
+  async function signInWithStellar() {
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      await signInWithAlbedo(authClient);
+      // Eagerly refresh session so UI reflects signed-in state
+      try {
+        const anyClient = authClient as any;
+        const refresh = anyClient.getSession || anyClient.session?.get;
+        if (typeof refresh === "function") {
+          await refresh();
+        } else if (typeof anyClient.$fetch === "function") {
+          await anyClient.$fetch("/get-session", { method: "GET" });
+        }
+      } catch {
+        // ignore refresh errors; fallback to reload below
+      }
+
+      setMessage("Signed in with Stellar.");
+      setView("success");
+      // Ensure hooks see the new cookie in all cases
+      setTimeout(() => {
+        try {
+          window.location.reload();
+        } catch {}
+      }, 0);
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to sign in with Stellar");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -177,7 +212,7 @@ export function AuthModal({
           </button>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-2">
           <Button
             variant="outline"
             className="w-full"
@@ -185,6 +220,16 @@ export function AuthModal({
             disabled={loading}
           >
             Continue with Google
+          </Button>
+        </div>
+        <div className="mb-4">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={signInWithStellar}
+            disabled={loading}
+          >
+            Continue with Stellar (Albedo)
           </Button>
         </div>
 
