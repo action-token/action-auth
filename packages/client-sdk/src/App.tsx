@@ -11,6 +11,21 @@ function App() {
   const [open, setOpen] = useState(false);
   const { data: session } = authClient.useSession();
 
+  function fetchSession() {
+    authClient
+      .getSession({
+        fetchOptions: {
+          onSuccess: (ctx) => {
+            const jwt = ctx.response.headers.get("set-auth-jwt");
+            console.log("jwt got", jwt);
+          },
+        },
+      })
+      .then((session) => {
+        console.log(session, "toml ");
+      });
+  }
+
   return (
     <>
       <div>
@@ -60,12 +75,15 @@ function App() {
         ) : (
           <>
             <Button onClick={() => setOpen(true)}>Connect</Button>
-            <Button variant="secondary" onClick={() => setCount((c) => c + 1)}>
+            <Button variant="secondary" onClick={() => fetchSession()}>
               Click me
             </Button>
           </>
         )}
       </div>
+      <Button variant="secondary" onClick={() => fetchSession()}>
+        Click me (feth)
+      </Button>
       <AuthModal open={open} onClose={() => setOpen(false)} />
     </>
   );

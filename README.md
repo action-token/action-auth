@@ -133,3 +133,33 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
 - [Configuration Options](https://turborepo.com/docs/reference/configuration)
 - [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+
+---
+Here’s what you’ve set up and decided for this project:
+
+Auth server
+
+Hono-based Better Auth server deployed on AWS Lambda (SST).
+CORS allows local dev origins; env includes BETTER_AUTH_URL and secrets.
+Session via cookies; need host-only cookies (no Domain=localhost) and Secure=false on HTTP during dev.
+Client SDK
+
+Reusable package (packages/client-sdk) exposing createAuthClient, hooks, and AuthModal.
+Supports Google, Stellar (Albedo), email/password, verification, reset.
+UI refreshes session and reloads after sign-in for reliability.
+Next.js integration
+
+Use a catch-all proxy route: app/api/auth/[...path]/route.ts that forwards to the Hono server.
+Point the SDK to the proxy, but baseURL must be absolute (or built from window.location.origin in client files).
+Server-side auth works by forwarding the Cookie header:
+auth.api.getSession({ headers: { cookie } }) or fetch to /get-session via the proxy.
+Why proxy
+
+Ensures first-party cookies (no CORS, no third-party cookie issues).
+Lets Next.js server read cookies for SSR/API/server actions.
+OAuth redirect URIs should target your app’s /api/auth/callback/... so cookies land on your app domain.
+LAN (IP) issue you saw
+
+Cookies weren’t set when using http://10.12.24.55:3000 because Domain was effectively tied to localhost and/or Secure was set on HTTP.
+Fixes: use the proxy on the same origin, don’t set Domain (host-only), don’t set Secure on HTTP, and include the IP-based callback URLs in your OAuth config.
+Overall: a reusable auth service (Hono + client SDK) consumable by any Next.js app via the /api/auth proxy, with server-side session validation and a ready-made modal for sign-in flows.

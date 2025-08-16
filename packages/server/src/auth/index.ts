@@ -2,12 +2,14 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db"; // your drizzle instance
 import { stellar } from "./plugins/stellar";
+import { jwt } from "better-auth/plugins";
 // import { expo } from "@better-auth/expo";
 
 export const auth = betterAuth({
   // Register Stellar plugin (minimal SEP-10)
   plugins: [
     // expo(),
+    jwt(),
     stellar({
       network: (process.env.STELLAR_NETWORK as any) || "TESTNET",
       serverSecret: process.env.STELLAR_SERVER_SECRET as string,
@@ -33,6 +35,10 @@ export const auth = betterAuth({
     "myapp://",
     "http://localhost:8081",
     "http://localhost:5173",
+    "http://localhost:3000",
+    "http://10.12.24.55:3000",
+    "https://92049f4cfa12.ngrok-free.app",
+    "https://ce01979be39f.ngrok-free.app",
   ],
   advanced: {
     defaultCookieAttributes: {

@@ -26,7 +26,13 @@ export default $config({
       url: {
         cors: {
           allowCredentials: true,
-          allowOrigins: ["http://localhost:5173", "http://localhost:3000"],
+          allowOrigins: [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://10.12.24.55:3000",
+            "https://92049f4cfa12.ngrok-free.app",
+            "https://ce01979be39f.ngrok-free.app",
+          ],
           allowHeaders: ["content-type", "authorization"],
           allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"],
           maxAge: "1 day",

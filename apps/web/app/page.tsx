@@ -1,6 +1,7 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
+import { AuthConnect } from "./_components/auth";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -37,7 +38,6 @@ export default function Home() {
           </li>
           <li>Save and see your changes instantly.</li>
         </ol>
-
         <div className={styles.ctas}>
           <a
             className={styles.primary}
@@ -66,6 +66,7 @@ export default function Home() {
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
+        {/* <AuthConnect /> */}
       </main>
       <footer className={styles.footer}>
         <a

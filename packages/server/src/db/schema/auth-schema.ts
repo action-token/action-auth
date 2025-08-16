@@ -70,3 +70,10 @@ export const verification = createTable(
   }),
   (t) => [index("identifier_idx").on(t.identifier)]
 );
+
+export const jwks = createTable("jwks", (d) => ({
+  id: d.text().primaryKey(),
+  publicKey: d.text().notNull(),
+  privateKey: d.text().notNull(),
+  createdAt: d.integer({ mode: "timestamp" }).notNull(),
+}));
