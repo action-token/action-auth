@@ -1,6 +1,7 @@
+// Import global CSS
+import "./index.css";
+
 export { AuthModal } from "./components/AuthModal";
-export { AuthWidget } from "./components/AuthWidget";
-export { ShadowWrapper } from "./components/ShadowWrapper";
 export {
   createClient as createAuthClient,
   AUTH_BASE_URL,

@@ -45,11 +45,7 @@ export default defineConfig({
           "react-dom",
           "react/jsx-runtime",
           "react-dom/client",
-          "@radix-ui/react-slot",
           "lucide-react",
-          "class-variance-authority",
-          "clsx",
-          "tailwind-merge",
           "better-auth/react",
           "@creit.tech/stellar-wallets-kit",
         ];
@@ -74,11 +70,14 @@ export default defineConfig({
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "React",
           "better-auth/react": "BetterAuthReact",
-          "@radix-ui/react-slot": "RadixSlot",
           "lucide-react": "LucideReact",
-          "class-variance-authority": "CVA",
-          clsx: "clsx",
-          "tailwind-merge": "tailwindMerge",
+        },
+        assetFileNames: (assetInfo) => {
+          // Rename CSS file to auth-styles.css
+          if (assetInfo.name?.endsWith(".css")) {
+            return "auth-styles.css";
+          }
+          return assetInfo.name || "[name].[ext]";
         },
       },
     },

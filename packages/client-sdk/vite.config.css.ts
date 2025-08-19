@@ -1,15 +1,17 @@
 import { defineConfig } from "vite";
-import tailwindcss from "@tailwindcss/vite";
+import { globSync } from "glob";
 
 export default defineConfig({
-  plugins: [tailwindcss()],
   build: {
     outDir: "dist",
     emptyOutDir: false, // Don't clear the dist directory
     rollupOptions: {
-      input: "./src/styles/shadow-styles.css",
+      input: [
+        "./src/index.css", // Global CSS variables and reset
+        ...globSync("./src/**/*.module.css"), // Include all CSS modules
+      ],
       output: {
-        assetFileNames: "shadow-styles.css",
+        assetFileNames: "auth-styles.css", // Single combined CSS file
       },
     },
   },

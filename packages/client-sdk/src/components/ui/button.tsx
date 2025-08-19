@@ -1,51 +1,39 @@
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import React from "react";
+import styles from "./button.module.css";
 
-import { cn } from "@/lib/utils";
-
-const buttonVariants = cva("btn", {
-  variants: {
-    variant: {
-      default: "btn-primary",
-      destructive: "btn-primary", // Use primary for now
-      outline: "btn-secondary",
-      secondary: "btn-secondary",
-      ghost: "btn-secondary",
-      link: "btn-secondary",
-    },
-    size: {
-      default: "",
-      sm: "",
-      lg: "",
-      icon: "",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-    size: "default",
-  },
-});
-
-function Button({
-  className,
-  variant,
-  size,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot : "button";
-
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  loading?: boolean;
+  fullWidth?: boolean;
 }
 
-export { Button, buttonVariants };
+export function Button({
+  children,
+  variant = "primary",
+  size = "md",
+  loading = false,
+  fullWidth = false,
+  className = "",
+  disabled,
+  ...props
+}: ButtonProps) {
+  const buttonClasses = [
+    styles.button,
+    styles[variant],
+    styles[size],
+    fullWidth ? styles.fullWidth : "",
+    loading ? styles.loading : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <button className={buttonClasses} disabled={disabled || loading} {...props}>
+      {loading && <div className={styles.spinner} />}
+      <span className={loading ? styles.loadingText : ""}>{children}</span>
+    </button>
+  );
+}
