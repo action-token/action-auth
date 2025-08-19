@@ -1,10 +1,8 @@
 import {
+  allowAllModules,
   StellarWalletsKit,
   WalletNetwork,
-  allowAllModules,
   XBULL_ID,
-  ALBEDO_ID,
-  LOBSTR_ID,
 } from "@creit.tech/stellar-wallets-kit";
 
 export const kit: StellarWalletsKit = new StellarWalletsKit({

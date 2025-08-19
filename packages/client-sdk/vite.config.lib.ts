@@ -30,6 +30,15 @@ export default defineConfig({
         // Externalize all React-related imports
         if (id.includes("react")) return true;
 
+        // Externalize all Lit-related imports (since you don't need them)
+        if (
+          id.includes("lit") ||
+          id.includes("@lit/") ||
+          id.includes("lit-element") ||
+          id.includes("lit-html")
+        )
+          return true;
+
         // Externalize all peer dependencies
         const peerDeps = [
           "react",
@@ -42,9 +51,22 @@ export default defineConfig({
           "clsx",
           "tailwind-merge",
           "better-auth/react",
+          "@creit.tech/stellar-wallets-kit",
         ];
 
         return peerDeps.some((dep) => id === dep || id.startsWith(dep + "/"));
+      },
+      onwarn(warning, warn) {
+        // Suppress Lit-related warnings since we're externalizing them
+        if (
+          warning.code === "AMBIGUOUS_EXTERNAL_NAMESPACE" ||
+          warning.code === "UNUSED_EXTERNAL_IMPORT" ||
+          (warning.message && warning.message.includes("lit")) ||
+          (warning.message && warning.message.includes("@lit/reactive-element"))
+        ) {
+          return;
+        }
+        warn(warning);
       },
       output: {
         globals: {
