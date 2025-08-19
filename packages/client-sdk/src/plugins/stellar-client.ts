@@ -1,9 +1,6 @@
 import type { BetterAuthClientPlugin } from "better-auth/client";
 import type { BetterFetchOption } from "@better-fetch/fetch";
-import albedo, {
-  type PublicKeyIntentResult,
-  type TxIntentResult,
-} from "@albedo-link/intent";
+import { kit } from "../lib/kit/init";
 
 type ChallengeResponse = {
   xdr: string;
@@ -37,49 +34,49 @@ export const stellarClient = () => {
             ...fetchOptions,
           }),
 
-        // High-level Albedo sign-in (popup + verify)
-        signInWithAlbedo: async (fetchOptions?: BetterFetchOption) => {
-          const pub: PublicKeyIntentResult = await albedo.publicKey({});
-          const account = pub.pubkey;
-          if (!account)
-            return { data: null, error: "failed_to_get_pubkey" } as const;
+        // High-level wallet sign-in (supports all wallets via kit)
+        signInWithWallet: async (fetchOptions?: BetterFetchOption) => {
+          try {
+            // Get public key from any connected wallet
+            const { address: account } = await kit.getAddress();
+            if (!account)
+              return { data: null, error: "failed_to_get_pubkey" } as const;
 
-          const { data: challenge, error: cErr } =
-            await $fetch<ChallengeResponse>("/stellar/challenge", {
-              method: "GET",
-              query: { account },
+            // Get challenge from server
+            const { data: challenge, error: cErr } =
+              await $fetch<ChallengeResponse>("/stellar/challenge", {
+                method: "GET",
+                query: { account },
+                ...fetchOptions,
+              });
+            if (!challenge)
+              return { data: null, error: cErr || "challenge_failed" } as const;
+
+            // Sign the challenge XDR with the connected wallet
+            const { signedTxXdr } = await kit.signTransaction(challenge.xdr, {
+              address: account,
+              networkPassphrase: challenge.networkPassphrase,
+            });
+
+            if (!signedTxXdr)
+              return { data: null, error: "sign_failed" } as const;
+
+            // Verify the signed transaction
+            const { data: verified, error: vErr } = await $fetch<{
+              status: boolean;
+            }>("/stellar/verify", {
+              method: "POST",
+              body: { xdr: signedTxXdr, account },
               ...fetchOptions,
             });
-          if (!challenge)
-            return { data: null, error: cErr || "challenge_failed" } as const;
 
-          const np = challenge.networkPassphrase?.toLowerCase?.() || "";
-          const networkIdent = np.includes("public")
-            ? "public"
-            : np.includes("test")
-              ? "testnet"
-              : (challenge.networkPassphrase as any);
+            if (!verified?.status)
+              return { data: null, error: vErr || "verify_failed" } as const;
 
-          const signed: TxIntentResult = await albedo.tx({
-            xdr: challenge.xdr,
-            network: networkIdent,
-            pubkey: account,
-          });
-          const xdr: string =
-            (signed as any).signed_envelope_xdr || (signed as any).xdr;
-          if (!xdr) return { data: null, error: "sign_failed" } as const;
-
-          const { data: verified, error: vErr } = await $fetch<{
-            status: boolean;
-          }>("/stellar/verify", {
-            method: "POST",
-            body: { xdr, account },
-            ...fetchOptions,
-          });
-          if (!verified?.status)
-            return { data: null, error: vErr || "verify_failed" } as const;
-
-          return { data: { status: true }, error: null } as const;
+            return { data: { status: true, account }, error: null } as const;
+          } catch (error) {
+            return { data: null, error: "wallet_connection_failed" } as const;
+          }
         },
       };
     },

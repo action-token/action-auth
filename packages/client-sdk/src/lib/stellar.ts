@@ -1,9 +1,11 @@
-// Minimal Stellar client helper for Albedo + Better Auth plugin endpoints
+// Minimal Stellar client helper for all Stellar wallets using kit + Better Auth plugin endpoints
 import type { AuthClient } from "./auth-client";
-import albedo, {
-  type PublicKeyIntentResult,
-  type TxIntentResult,
-} from "@albedo-link/intent";
+import { kit } from "./kit/init";
+import {
+  XBULL_ID,
+  ALBEDO_ID,
+  LOBSTR_ID,
+} from "@creit.tech/stellar-wallets-kit";
 
 export type StartStellarResult = {
   xdr: string;
@@ -12,14 +14,19 @@ export type StartStellarResult = {
   expiresAt: string;
 };
 
-export async function signInWithAlbedo(authClient: AuthClient) {
-  // 1) get public key from Albedo
-  // You can hint network: "public" | "testnet"; leaving empty lets Albedo decide
-  const pub: PublicKeyIntentResult = await albedo.publicKey({});
-  const account: string = pub.pubkey;
-  if (!account) throw new Error("Failed to get Albedo public key");
+// Generic function that works with any wallet via kit
+export async function signInWithStellarWallet(
+  authClient: AuthClient,
+  walletId: string
+) {
+  // 1) Set the wallet in kit
+  kit.setWallet(walletId);
 
-  // 2) request challenge
+  // 2) Get public key from the connected wallet
+  const { address: account } = await kit.getAddress();
+  if (!account) throw new Error("Failed to get public key from wallet");
+
+  // 3) Request challenge from server
   const { data: challenge, error: challengeErr } = await (
     authClient as any
   ).$fetch("/stellar/challenge", {
@@ -28,30 +35,35 @@ export async function signInWithAlbedo(authClient: AuthClient) {
   });
   if (!challenge) throw new Error(challengeErr || "Failed to get challenge");
 
-  // 3) sign XDR with Albedo
-  // Albedo expects network identifier: "public" | "testnet" | passphrase
-  const np = challenge.networkPassphrase?.toLowerCase?.() || "";
-  const networkIdent = np.includes("public")
-    ? "public"
-    : np.includes("test")
-      ? "testnet"
-      : challenge.networkPassphrase;
-  const signed: TxIntentResult = await albedo.tx({
-    xdr: challenge.xdr,
-    network: networkIdent,
-    pubkey: account,
+  // 4) Sign XDR with the connected wallet
+  const { signedTxXdr } = await kit.signTransaction(challenge.xdr, {
+    address: account,
+    networkPassphrase: challenge.networkPassphrase,
   });
-  const xdr: string = signed.signed_envelope_xdr || signed.xdr;
-  if (!xdr) throw new Error("Failed to sign transaction");
 
-  // 4) verify
+  if (!signedTxXdr) throw new Error("Failed to sign transaction");
+
+  // 5) Verify the signed transaction
   const { data: verified, error: verifyErr } = await (authClient as any).$fetch(
     "/stellar/verify",
     {
       method: "POST",
-      body: { xdr, account },
+      body: { xdr: signedTxXdr, account },
     }
   );
   if (!verified?.status) throw new Error(verifyErr || "Verification failed");
   return true;
+}
+
+// Specific wallet functions for easy use
+export async function signInWithAlbedo(authClient: AuthClient) {
+  return signInWithStellarWallet(authClient, ALBEDO_ID);
+}
+
+export async function signInWithXBull(authClient: AuthClient) {
+  return signInWithStellarWallet(authClient, XBULL_ID);
+}
+
+export async function signInWithLobstr(authClient: AuthClient) {
+  return signInWithStellarWallet(authClient, LOBSTR_ID);
 }

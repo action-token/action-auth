@@ -1,15 +1,27 @@
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import { Button } from "./components/ui/button";
 import { useState } from "react";
+import "./App.css";
+import reactLogo from "./assets/react.svg";
 import { AuthModal } from "./components/AuthModal";
+import { Button } from "./components/ui/button";
 import { authClient } from "./lib/auth-client";
+import viteLogo from "/vite.svg";
+// import { kit } from "./lib/kit/init";
+import { LOBSTR_ID } from "@creit.tech/stellar-wallets-kit";
+import { kit } from "./lib/kit/init";
 
 function App() {
   const [count, setCount] = useState(0);
   const [open, setOpen] = useState(false);
   const { data: session } = authClient.useSession();
+
+  async function handleModalOpen() {
+    kit.setWallet(LOBSTR_ID);
+    const address = await kit.getAddress();
+    console.log(address, "adress");
+
+    const res = kit.signTransaction("hello sir");
+    console.log(res, "hi");
+  }
 
   function fetchSession() {
     authClient
@@ -48,6 +60,9 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <div>
+        <button onClick={handleModalOpen}>open model </button>
+      </div>
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {session ? (
           <>

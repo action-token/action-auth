@@ -6,16 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:lib": "vite build -c vite.config.lib.ts",
+    "build:lib": "vite build -c vite.config.lib.ts && vite build -c vite.config.css.ts",
+    "build:css": "vite build -c vite.config.css.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
-      "require": "./dist/index.cjs.js",
-      "types": "./dist/index.d.ts"
-    }
+      "require": "./dist/index.cjs.js"
+    },
+    "./styles": "./dist/shadow-styles.css"
   },
   "types": "./dist/index.d.ts",
   "files": [
@@ -23,35 +25,59 @@
     "README.md"
   ],
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "@radix-ui/react-slot": ">=1.0.0",
+    "class-variance-authority": ">=0.6.0",
+    "clsx": ">=1.0.0",
+    "lucide-react": ">=0.300.0",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "tailwind-merge": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@radix-ui/react-slot": {
+      "optional": true
+    },
+    "lucide-react": {
+      "optional": true
+    },
+    "class-variance-authority": {
+      "optional": true
+    },
+    "clsx": {
+      "optional": true
+    },
+    "tailwind-merge": {
+      "optional": true
+    }
   },
   "dependencies": {
-    "@albedo-link/intent": "^0.13.0",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@tailwindcss/vite": "^4.1.11",
+    "@creit.tech/stellar-wallets-kit": "^1.8.0",
     "better-auth": "^1.3.4",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.539.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11"
+    "react-hot-toast": "^2.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@tailwindcss/vite": "^4.1.11",
     "@types/node": "^24.2.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "lucide-react": "^0.539.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.6",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.0",
-    "vite": "^7.1.0"
+    "vite": "^7.1.0",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
