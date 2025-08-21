@@ -17,6 +17,11 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.es.js",
+      "require": "./dist/server.cjs.js"
+    },
     "./styles": "./dist/auth-styles.css"
   },
   "types": "./dist/index.d.ts",

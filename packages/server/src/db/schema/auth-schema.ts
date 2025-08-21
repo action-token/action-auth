@@ -13,6 +13,9 @@ export const user = createTable(
     image: d.text(),
     createdAt: d.integer({ mode: "timestamp" }).notNull(),
     updatedAt: d.integer({ mode: "timestamp" }).notNull(),
+    // Custom Stellar fields
+    stellarPublicKey: d.text(),
+    isCustodial: d.integer({ mode: "boolean" }).default(false),
   }),
   (t) => [index("email_idx").on(t.email)]
 );
@@ -31,6 +34,8 @@ export const session = createTable(
       .text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    // Custom login type field
+    loginType: d.text(),
   }),
   (t) => [index("token_idx").on(t.token)]
 );

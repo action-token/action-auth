@@ -19,9 +19,12 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        server: resolve(__dirname, "src/server.ts"),
+      },
       name: "AuthClientSDK",
-      fileName: (format) => `index.${format}.js`,
+      fileName: (format, entryName) => `${entryName}.${format}.js`,
       formats: ["es", "cjs"],
     },
     minify: false, // Easier to debug externalization
@@ -38,6 +41,12 @@ export default defineConfig({
           id.includes("lit-html")
         )
           return true;
+
+        // Externalize server dependencies
+        if (id.startsWith("better-auth")) return true;
+        if (id.startsWith("stellar-sdk")) return true;
+        if (id === "zod" || id.startsWith("zod/")) return true;
+        if (id.startsWith("node:")) return true;
 
         // Externalize all peer dependencies
         const peerDeps = [

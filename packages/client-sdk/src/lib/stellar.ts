@@ -31,7 +31,7 @@ export async function signInWithStellarWallet(
     authClient as any
   ).$fetch("/stellar/challenge", {
     method: "GET",
-    query: { account },
+    query: { account, wallet_type: walletId },
   });
   if (!challenge) throw new Error(challengeErr || "Failed to get challenge");
 
@@ -48,7 +48,7 @@ export async function signInWithStellarWallet(
     "/stellar/verify",
     {
       method: "POST",
-      body: { xdr: signedTxXdr, account },
+      body: { xdr: signedTxXdr, account, wallet_type: walletId },
     }
   );
   if (!verified?.status) throw new Error(verifyErr || "Verification failed");

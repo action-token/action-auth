@@ -1,6 +1,6 @@
 import type { BetterAuthPlugin } from "better-auth";
-import { createAuthEndpoint, APIError } from "better-auth/api";
-import { z } from "zod";
+import { APIError, createAuthEndpoint } from "better-auth/api";
+import { randomBytes } from "node:crypto";
 import {
   Account,
   BASE_FEE,
@@ -10,7 +10,7 @@ import {
   Transaction,
   TransactionBuilder,
 } from "stellar-sdk";
-import { randomBytes, randomUUID } from "node:crypto";
+import { z } from "zod";
 
 export type StellarPluginOptions = {
   network: "PUBLIC" | "TESTNET" | { passphrase: string };
@@ -72,12 +72,11 @@ export const stellar = (opts: StellarPluginOptions) => {
           query: z.object({
             account: z.string().min(1),
             client_domain: z.string().optional(),
-            wallet_type: z.string().optional(),
           }),
         },
         async (ctx) => {
           try {
-            const { account, client_domain, wallet_type } = ctx.query;
+            const { account, client_domain } = ctx.query;
 
             // Build SEP-10 challenge transaction
             const now = Math.floor(Date.now() / 1000);
@@ -161,12 +160,11 @@ export const stellar = (opts: StellarPluginOptions) => {
           body: z.object({
             xdr: z.string().min(1),
             account: z.string().min(1),
-            wallet_type: z.string(),
           }),
         },
         async (ctx) => {
           try {
-            const { xdr, account, wallet_type } = ctx.body;
+            const { xdr, account } = ctx.body;
             let tx: Transaction;
             try {
               tx = new Transaction(xdr, networkPassphrase);

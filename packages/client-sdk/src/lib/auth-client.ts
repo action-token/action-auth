@@ -13,7 +13,7 @@ export type AuthClient = ReturnType<typeof createAuthClient>;
 
 export function createClient(options?: { baseURL?: string }) {
   return createAuthClient({
-    baseURL: options?.baseURL ?? AUTH_BASE_URL,
+    baseURL: options?.baseURL,
     plugins: [stellarClient()],
   });
 }
