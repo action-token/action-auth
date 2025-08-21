@@ -10,12 +10,3 @@ export const kit: StellarWalletsKit = new StellarWalletsKit({
   selectedWalletId: XBULL_ID,
   modules: allowAllModules(),
 });
-
-// kit.setWallet(ALBEDO_ID) // to set a specific wallet type
-
-// const { address } = await kit.getAddress();
-// // AND THEN
-// const { signedTxXdr } = await kit.signTransaction("XDR_HERE", {
-//   address,
-//   networkPassphrase: WalletNetwork.PUBLIC,
-// });

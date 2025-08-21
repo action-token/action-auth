@@ -29,6 +29,9 @@ importers:
       clsx:
         specifier: '>=1.0.0'
         version: 2.1.1
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@libsql/client@0.15.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(gel@2.1.1)(kysely@0.28.4)
       glob:
         specifier: ^11.0.3
         version: 11.0.3
