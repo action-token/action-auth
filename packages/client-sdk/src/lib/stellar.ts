@@ -36,9 +36,15 @@ export async function signInWithStellarWallet(
   if (!challenge) throw new Error(challengeErr || "Failed to get challenge");
 
   // 4) Sign XDR with the connected wallet
-  const { signedTxXdr } = await kit.signTransaction(challenge.xdr, {
+  // const { signedTxXdr } = await kit.signTransaction(challenge.xdr, {
+  //   address: account,
+  //   networkPassphrase: challenge.networkPassphrase,
+  // });
+  const signedTxXdr = await signTransaction({
     address: account,
     networkPassphrase: challenge.networkPassphrase,
+    walletId: walletId,
+    xdr: challenge.xdr,
   });
 
   if (!signedTxXdr) throw new Error("Failed to sign transaction");
@@ -66,4 +72,24 @@ export async function signInWithXBull(authClient: AuthClient) {
 
 export async function signInWithLobstr(authClient: AuthClient) {
   return signInWithStellarWallet(authClient, LOBSTR_ID);
+}
+
+export async function signTransaction({
+  xdr,
+  networkPassphrase,
+  address,
+  walletId,
+}: {
+  xdr: string;
+  networkPassphrase: string;
+  address: string;
+  walletId: string;
+}) {
+  kit.setWallet(walletId);
+  const { signedTxXdr } = await kit.signTransaction(xdr, {
+    address: address,
+    networkPassphrase: networkPassphrase,
+  });
+
+  return signedTxXdr;
 }

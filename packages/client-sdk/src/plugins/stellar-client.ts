@@ -39,6 +39,7 @@ export const stellarClient = () => {
           try {
             // Get public key from any connected wallet
             const { address: account } = await kit.getAddress();
+
             if (!account)
               return { data: null, error: "failed_to_get_pubkey" } as const;
 

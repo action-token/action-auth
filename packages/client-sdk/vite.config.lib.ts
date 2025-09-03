@@ -24,7 +24,12 @@ export default defineConfig({
         server: resolve(__dirname, "src/server.ts"),
       },
       name: "AuthClientSDK",
-      fileName: (format, entryName) => `${entryName}.${format}.js`,
+      fileName: (format, entryName) => {
+        if (format === "cjs") {
+          return `${entryName}.${format}`;
+        }
+        return `${entryName}.${format}.js`;
+      },
       formats: ["es", "cjs"],
     },
     minify: false, // Easier to debug externalization

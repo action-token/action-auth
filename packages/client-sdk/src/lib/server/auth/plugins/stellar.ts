@@ -1,5 +1,6 @@
-import type { BetterAuthPlugin } from "better-auth";
+import type { BetterAuthPlugin, HookEndpointContext } from "better-auth";
 import { APIError, createAuthEndpoint } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import {
   Account,
@@ -11,6 +12,7 @@ import {
   TransactionBuilder,
 } from "stellar-sdk";
 import { z } from "zod";
+import { session as Session } from "../schema/auth";
 
 export type StellarPluginOptions = {
   network: "PUBLIC" | "TESTNET" | { passphrase: string };
@@ -20,6 +22,7 @@ export type StellarPluginOptions = {
   homeDomain: string; // e.g. app.example.com
   emailDomainName: string; // for creating synthetic emails for users
   challengeTTL?: number; // seconds, default 300
+  db: any;
 };
 
 function base64Url(bytes: Uint8Array) {
@@ -160,11 +163,12 @@ export const stellar = (opts: StellarPluginOptions) => {
           body: z.object({
             xdr: z.string().min(1),
             account: z.string().min(1),
+            wallet_type: z.string().optional(),
           }),
         },
         async (ctx) => {
           try {
-            const { xdr, account } = ctx.body;
+            const { xdr, account, wallet_type } = ctx.body;
             let tx: Transaction;
             try {
               tx = new Transaction(xdr, networkPassphrase);
@@ -177,10 +181,7 @@ export const stellar = (opts: StellarPluginOptions) => {
               throw new APIError("BAD_REQUEST", { message: "invalid_source" });
             }
             const seq: any = (tx as any).sequence;
-            const isZeroSeq =
-              seq === "0" ||
-              seq === 0 ||
-              (typeof seq === "bigint" && seq === 0n);
+            const isZeroSeq = String(seq) === "0";
             if (!isZeroSeq) {
               // throw new APIError("BAD_REQUEST", {
               //   message: "invalid_sequence",
@@ -281,6 +282,7 @@ export const stellar = (opts: StellarPluginOptions) => {
                   name: account,
                   image: null,
                   emailVerified: true,
+                  stellarPublicKey: account,
                 },
                 ctx
               );
@@ -305,6 +307,12 @@ export const stellar = (opts: StellarPluginOptions) => {
               userId,
               ctx
             );
+
+            await opts.db
+              .update(Session)
+              .set({ loginType: wallet_type || "stellar" })
+              .where(eq(Session.id, session.id));
+
             if (!session) {
               throw new APIError("INTERNAL_SERVER_ERROR", {
                 message: "failed_to_create_session",

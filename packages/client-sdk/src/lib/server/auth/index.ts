@@ -44,6 +44,7 @@ export const createAuth = (db: any) =>
         homeDomain: process.env.HOME_DOMAIN ?? "https://home.local",
         emailDomainName: process.env.EMAIL_DOMAIN_NAME || "stellar.local",
         challengeTTL: 300,
+        db: db,
       }),
     ],
     database: drizzleAdapter(db, {
@@ -91,7 +92,6 @@ export const createAuth = (db: any) =>
         // Only run for specific auth endpoints
         console.log("Auth hook triggered for path:", ctx.path);
         if (
-          ctx.path === "/stellar/verify" ||
           ctx.path === "/sign-in/social" ||
           ctx.path === "/sign-up/email" ||
           ctx.path === "/sign-in/email" ||
