@@ -1,11 +1,14 @@
 // Minimal Stellar client helper for all Stellar wallets using kit + Better Auth plugin endpoints
 import type { AuthClient } from "./auth-client";
-import { kit } from "./kit/init";
-import {
-  XBULL_ID,
-  ALBEDO_ID,
-  LOBSTR_ID,
-} from "@creit.tech/stellar-wallets-kit";
+
+async function getKit() {
+  const { kit } = await import("./kit/init");
+  return kit;
+}
+
+const XBULL_ID = "xbull";
+const ALBEDO_ID = "albedo";
+const LOBSTR_ID = "lobstr";
 
 export type StartStellarResult = {
   xdr: string;
@@ -19,6 +22,7 @@ export async function signInWithStellarWallet(
   authClient: AuthClient,
   walletId: string
 ) {
+  const kit = await getKit();
   // 1) Set the wallet in kit
   kit.setWallet(walletId);
 
@@ -85,6 +89,7 @@ export async function signTransaction({
   address: string;
   walletId: string;
 }) {
+  const kit = await getKit();
   kit.setWallet(walletId);
   const { signedTxXdr } = await kit.signTransaction(xdr, {
     address: address,

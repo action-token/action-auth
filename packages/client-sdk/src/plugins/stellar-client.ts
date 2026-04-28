@@ -1,6 +1,15 @@
 import type { BetterAuthClientPlugin } from "better-auth/client";
 import type { BetterFetchOption } from "@better-fetch/fetch";
-import { kit } from "../lib/kit/init";
+import type { kit as KitType } from "../lib/kit/init";
+
+let _kit: typeof KitType | undefined;
+async function getKit() {
+  if (!_kit) {
+    const mod = await import("../lib/kit/init");
+    _kit = mod.kit;
+  }
+  return _kit;
+}
 
 type ChallengeResponse = {
   xdr: string;
@@ -37,6 +46,7 @@ export const stellarClient = () => {
         // High-level wallet sign-in (supports all wallets via kit)
         signInWithWallet: async (fetchOptions?: BetterFetchOption) => {
           try {
+            const kit = await getKit();
             // Get public key from any connected wallet
             const { address: account } = await kit.getAddress();
 

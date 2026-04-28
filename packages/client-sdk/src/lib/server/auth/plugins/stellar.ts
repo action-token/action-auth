@@ -1,4 +1,4 @@
-import type { BetterAuthPlugin, HookEndpointContext } from "better-auth";
+import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthEndpoint } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
